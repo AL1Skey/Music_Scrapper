@@ -120,7 +120,7 @@ async function downloader(link,api){
     if(download.ok){
       // Handle downloaded object as binary
       const downloaded = await download.blob()
-      console.log(downloaded)
+      return downloaded
     }
     else{
       throw new Error(`Request failed with status ${download.status}`)
@@ -169,12 +169,15 @@ const Results = ({ searchParams }) => {
   if (data) {
     return (
       <div className=" p-5 border border-5 rounded-lg">
+        <audio src="https://static.wikia.nocookie.net/blue-archive/images/8/8e/Constant_Moderato_%28Short%29.ogg/revision/latest?cb=20211122134548" width="420" style={{"max-width": "100%", "width": "420px"}} controls><a href="https://bluearchive.fandom.com/wiki/File:Constant_Moderato_(Short).ogg">https://bluearchive.fandom.com/wiki/File:Constant_Moderato_(Short).ogg</a></audio>
+
+        <a href="https://static.wikia.nocookie.net/blue-archive/images/8/8e/Constant_Moderato_%28Short%29.ogg/revision/latest?cb=20211122134548">Test Link</a>
         <ul className="list-none grid gap-5">
-          {data.map((result) => {
+          {/* {data.map((result) => {
             return (
               <li key={result["id"]} className="flex justify-around">
-                <audio controls src={result["src"]}>
-                  <a href={result["href"]}>{result["href"]}</a>
+                <audio src={result["src"]} controls>
+               
                 </audio>
                 <form onSubmit={downloadHandler}>
                   <input type="hidden" name="link" value={result["src"]} />
@@ -187,7 +190,7 @@ const Results = ({ searchParams }) => {
                 </form>
               </li>
             );
-          })}
+          })} */}
         </ul>
       </div>
     );
