@@ -6,7 +6,7 @@ import downloader from "./tools/downloader";
 
 const Results = ({ searchParams }) => {
   // Get link from parameter
-  let { link } = searchParams;
+  const { link } = searchParams;
   const [data, setData] = useState([]);
 
   // Set display
@@ -15,6 +15,8 @@ const Results = ({ searchParams }) => {
   const [min, setMin] = useState(0);
   // Set max counter
   const [max, setMax] = useState(10);
+  // Set bar
+  const [bar, setBar] = useState(0);
 
   //Do this function once
   useEffect(() => {
@@ -24,12 +26,19 @@ const Results = ({ searchParams }) => {
       const output = await getData(link, "http://127.0.0.1:8000/results");
       console.log("executing invoke");
       setData(output);
-      console.log("output:", output);
+
+      let count = 0;
+      output.forEach((some) => {
+        count++;
+      });
+      setMax(count);
+
+      // console.log("output:", output);
+      // console.log(count);
     }
     // If data is empty
     if (!data.length) {
       invoke();
-      setMax(data.length);
       console.log("data:", data);
     }
   });
@@ -39,9 +48,10 @@ const Results = ({ searchParams }) => {
   const downloadHandler = useCallback((e) => {
     e.preventDefault();
     console.log(e.target.link.value);
-
+    const filename = e.target.filename.value;
+    const urlink = e.target.link.value;
     async function invoke() {
-      await downloader(e.target.link.value, e.target.filename.value);
+      await downloader(urlink, filename);
     }
 
     invoke();
@@ -51,58 +61,84 @@ const Results = ({ searchParams }) => {
 
   const downloadallHandler = useCallback((e) => {
     e.preventDefault();
-    const result = e.target.value.results;
+
+    const result = JSON.parse(e.target.results.value);
 
     setDisplay("block");
 
     async function invoke() {
-      for (place of result) {
-        link = place["src"];
-        filename = place["filename"];
-        await downloader(link, filename);
+      let count = 1;
+      for (let place of result) {
+        let urlink = place["src"];
+        let filename = place["id"] + " " + place["filename"];
+        await downloader(urlink, filename);
+        setMin(count);
+        setBar((count / max) * 100);
+        count++;
       }
     }
+
+    invoke();
+
+    console.log("downloader invoked");
   });
 
   if (data) {
-    return (
-      <div className=" p-5 border border-5 rounded-lg">
-        <div className="mb-5 ml-auto">
-          <form onSubmit={downloadallHandler}>
-            <input type="hidden" name="results" value={data} />
-            <button className="p-2 border border-2 rounded-lg " type="submit">
-              Download All
-            </button>
-          </form>
-          <p>1/4</p>
+    try {
+      return (
+        <div className=" p-5 border border-5 rounded-lg">
+          <div className="mb-5 ml-auto">
+            <form onSubmit={downloadallHandler}>
+              <input
+                type="hidden"
+                name="results"
+                value={JSON.stringify(data)}
+              />
+              <button className="p-2 border border-2 rounded-lg " type="submit">
+                Download All
+              </button>
+            </form>
+            <div className="mt-5 w-1/6 h-full border border-1 rounded-lg">
+              <div
+                className="h-full bg-blue-600 rounded-lg"
+                style={{ width: bar + "%" }}
+              >
+                <p className="text-center">
+                  {min}/{max}
+                </p>
+              </div>
+            </div>
+          </div>
+          <ul className="list-none grid gap-5">
+            {data.map((result) => {
+              return (
+                <li key={result["id"]} className="flex justify-around">
+                  <audio controls src={result["src"]} typeof="audio/ogg">
+                    <a href={result["href"]}>{result["href"]}</a>
+                  </audio>
+                  <form onSubmit={downloadHandler}>
+                    <input type="hidden" name="link" value={result["src"]} />
+                    <input
+                      type="hidden"
+                      name="filename"
+                      value={result["id"] + " " + result["filename"]}
+                    />
+                    <button
+                      className="p-2 border border-2 rounded-lg "
+                      type="submit"
+                    >
+                      Download
+                    </button>
+                  </form>
+                </li>
+              );
+            })}
+          </ul>
         </div>
-        <ul className="list-none grid gap-5">
-          {data.map((result) => {
-            return (
-              <li key={result["id"]} className="flex justify-around">
-                <audio controls src={result["src"]} typeof="audio/ogg">
-                  <a href={result["href"]}>{result["href"]}</a>
-                </audio>
-                <form onSubmit={downloadHandler}>
-                  <input type="hidden" name="link" value={result["src"]} />
-                  <input
-                    type="hidden"
-                    name="filename"
-                    value={result["filename"]}
-                  />
-                  <button
-                    className="p-2 border border-2 rounded-lg "
-                    type="submit"
-                  >
-                    Download
-                  </button>
-                </form>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    );
+      );
+    } catch (error) {
+      return <h1>{error}</h1>;
+    }
   } else {
     return <h1>ERROOOR MISSING</h1>;
   }
