@@ -1,62 +1,8 @@
 "use client";
+import { headers } from "@/next.config";
 import React, { useCallback, useEffect, useState } from "react";
-
-// Get data from api
-async function getData(link, api) {
-  try {
-    // DO data processing with api
-    const response = await fetch(api, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ link: link }),
-    });
-    console.log("response: ", response);
-
-    //If error throw Error
-    if (!response.ok) {
-      throw new Error(`Request failed with status: ${response.status}`);
-    }
-
-    // Wait for data to converted to json
-    const data = await response.json();
-    console.log("Data: ", data);
-    // Return the processed data
-    return data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return null; // Return null or an empty array depending on your needs
-  }
-}
-
-async function downloader(link,api){
-  try{
-    const download = await fetch(api,{
-      method:"POST",
-      mode:"cors",
-      headers:{
-        "Content-Type":"application/octet-stream"
-      },
-      body:JSON.stringify({"link":link})
-    }).catch((error)=>{
-      console.error(error)
-    })
-
-    if(download.ok){
-      // Handle downloaded object as binary
-      const downloaded = await download.blob()
-      console.log(downloaded)
-    }
-    else{
-      throw new Error(`Request failed with status ${download.status}`)
-    }
-  }
-  catch(error){
-    console.error(error)
-  }
-}
+import getData from "./tools/fetcher";
+import downloader from "./tools/downloader";
 
 const Results = ({ searchParams }) => {
   // Get link from parameter
@@ -69,29 +15,31 @@ const Results = ({ searchParams }) => {
     // If I not do it, next will fetching twice every render
     async function invoke() {
       const output = await getData(link, "http://127.0.0.1:8000/results");
+      console.log("executing invoke");
       setData(output);
-      console.log("output:",output)
+      console.log("output:", output);
     }
     // If data is empty
     if (!data.length) {
-      invoke()
-      console.log(data)
+      invoke();
+      console.log("data:", data);
     }
   });
 
   console.log(data);
 
-  const downloadHandler = useCallback((e)=>{
-      e.preventDefault();
-      console.log(e.target.link.value)
+  const downloadHandler = useCallback((e) => {
+    e.preventDefault();
+    console.log(e.target.link.value);
 
-      async function invoke(){
-      await downloader(e.target.link.value,"http://127.0.0.1:8000/download")}
+    async function invoke() {
+      await downloader(e.target.link.value, e.target.filename.value);
+    }
 
-      invoke()
+    invoke();
 
-      console.log("downloader invoked")
-  })
+    console.log("downloader invoked");
+  });
 
   if (data) {
     return (
@@ -100,14 +48,19 @@ const Results = ({ searchParams }) => {
           {data.map((result) => {
             return (
               <li key={result["id"]} className="flex justify-around">
-                <audio controls src={result["src"]}>
+                <audio controls src={result["src"]} typeof="audio/ogg">
                   <a href={result["href"]}>{result["href"]}</a>
                 </audio>
                 <form onSubmit={downloadHandler}>
                   <input type="hidden" name="link" value={result["src"]} />
+                  <input
+                    type="hidden"
+                    name="filename"
+                    value={result["filename"]}
+                  />
                   <button
-                    type="submit"
                     className="p-2 border border-2 rounded-lg "
+                    type="submit"
                   >
                     Download
                   </button>
