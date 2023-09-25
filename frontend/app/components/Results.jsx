@@ -6,8 +6,15 @@ import downloader from "./tools/downloader";
 
 const Results = ({ searchParams }) => {
   // Get link from parameter
-  const { link } = searchParams;
+  let { link } = searchParams;
   const [data, setData] = useState([]);
+
+  // Set display
+  const [display, setDisplay] = useState("none");
+  // Set min counter
+  const [min, setMin] = useState(0);
+  // Set max counter
+  const [max, setMax] = useState(10);
 
   //Do this function once
   useEffect(() => {
@@ -22,6 +29,7 @@ const Results = ({ searchParams }) => {
     // If data is empty
     if (!data.length) {
       invoke();
+      setMax(data.length);
       console.log("data:", data);
     }
   });
@@ -41,9 +49,33 @@ const Results = ({ searchParams }) => {
     console.log("downloader invoked");
   });
 
+  const downloadallHandler = useCallback((e) => {
+    e.preventDefault();
+    const result = e.target.value.results;
+
+    setDisplay("block");
+
+    async function invoke() {
+      for (place of result) {
+        link = place["src"];
+        filename = place["filename"];
+        await downloader(link, filename);
+      }
+    }
+  });
+
   if (data) {
     return (
       <div className=" p-5 border border-5 rounded-lg">
+        <div className="mb-5 ml-auto">
+          <form onSubmit={downloadallHandler}>
+            <input type="hidden" name="results" value={data} />
+            <button className="p-2 border border-2 rounded-lg " type="submit">
+              Download All
+            </button>
+          </form>
+          <p>1/4</p>
+        </div>
         <ul className="list-none grid gap-5">
           {data.map((result) => {
             return (
