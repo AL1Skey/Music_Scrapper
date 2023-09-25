@@ -2,7 +2,7 @@
 Application that get audio from website
 
 # Problem
-- Audio tag doesnt work because server get image type from src attribute rather than audio file
+- Audio tag doesnt work because server send get image type from src attribute rather than audio file
 - Need to disable csrf on backend because even after allowing everything, it still denies request from frontend
 
 # Keynotes
