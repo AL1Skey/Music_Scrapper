@@ -1,1 +1,4 @@
 Django==4.1.3
+requests
+django-cors-headers
+beautifulsoup4
