@@ -3,6 +3,7 @@ import { headers } from "@/next.config";
 import React, { useCallback, useEffect, useState } from "react";
 import getData from "./tools/fetcher";
 import downloader from "./tools/downloader";
+import serverAPI from "./tools/server";
 
 const Results = ({ searchParams }) => {
   // Get link from parameter
@@ -23,7 +24,7 @@ const Results = ({ searchParams }) => {
     // Create async function as workaround to promise
     // If I not do it, next will fetching twice every render
     async function invoke() {
-      const output = await getData(link, "http://127.0.0.1:8000/results");
+      const output = await getData(link, serverAPI);
       console.log("executing invoke");
       setData(output);
 
