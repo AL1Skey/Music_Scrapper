@@ -6,6 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from urllib.parse import unquote
 
+def index(request):
+    return HttpResponse("<h1> Success Deployed</h1>")
+
 # Create your views here.
 @csrf_exempt
 def results(request):
