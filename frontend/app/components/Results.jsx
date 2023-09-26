@@ -3,7 +3,6 @@ import { headers } from "@/next.config";
 import React, { useCallback, useEffect, useState } from "react";
 import getData from "./tools/fetcher";
 import downloader from "./tools/downloader";
-import serverAPI from "./tools/server";
 
 const Results = ({ searchParams }) => {
   // Get link from parameter
@@ -21,34 +20,40 @@ const Results = ({ searchParams }) => {
 
   //Do this function once
   useEffect(() => {
-    // Create async function as workaround to promise
-    // If I not do it, next will fetching twice every render
-    async function invoke() {
-      const output = await getData(link, serverAPI);
-      console.log("executing invoke");
-      setData(output);
+    try {
+      const api = process.env.API_HOST_RESULTS;
+      // Create async function as workaround to promise
+      // If I not do it, next will fetching twice every render
+      async function invoke() {
+        const output = await getData(link, "" + api);
 
-      let count = 0;
-      output.forEach((some) => {
-        count++;
-      });
-      setMax(count);
+        setData(output);
 
-      // console.log("output:", output);
-      // console.log(count);
-    }
-    // If data is empty
-    if (!data.length) {
-      invoke();
-      console.log("data:", data);
+        let count = 0;
+        output.forEach((some) => {
+          count++;
+        });
+        setMax(count);
+
+        //
+        //
+      }
+      // If data is empty
+      if (!data.length) {
+        invoke();
+      }
+    } catch (error) {
+      return (
+        <>
+          <h1>{error}</h1>
+        </>
+      );
     }
   });
 
-  console.log(data);
-
   const downloadHandler = useCallback((e) => {
     e.preventDefault();
-    console.log(e.target.link.value);
+
     const filename = e.target.filename.value;
     const urlink = e.target.link.value;
     async function invoke() {
@@ -56,8 +61,6 @@ const Results = ({ searchParams }) => {
     }
 
     invoke();
-
-    console.log("downloader invoked");
   });
 
   const downloadallHandler = useCallback((e) => {
@@ -80,8 +83,6 @@ const Results = ({ searchParams }) => {
     }
 
     invoke();
-
-    console.log("downloader invoked");
   });
 
   if (data) {

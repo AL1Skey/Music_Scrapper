@@ -15,7 +15,6 @@ export default async function downloader(link, filename) {
     if (download.ok) {
       // Handle downloaded object as binary
       const downloaded = await download.blob();
-      console.log("download", downloaded);
 
       // Create Temporary Url from localstorage
       const dURL = URL.createObjectURL(downloaded);

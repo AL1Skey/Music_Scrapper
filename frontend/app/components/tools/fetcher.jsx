@@ -9,7 +9,6 @@ export default async function getData(link, api) {
       },
       body: JSON.stringify({ link: link }),
     });
-    console.log("response: ", response);
 
     //If error throw Error
     if (!response.ok) {
@@ -18,7 +17,7 @@ export default async function getData(link, api) {
 
     // Wait for data to converted to json
     const data = await response.json();
-    console.log("Data: ", data);
+
     // Return the processed data
     return data;
   } catch (error) {
