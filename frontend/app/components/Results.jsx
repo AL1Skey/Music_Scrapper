@@ -21,7 +21,7 @@ const Results = ({ searchParams }) => {
   //Do this function once
   useEffect(() => {
     try {
-      const api = process.env.API_HOST_RESULTS;
+      const api = process.env.NEXT_PUBLIC_API_HOST_RESULTS;
       // Create async function as workaround to promise
       // If I not do it, next will fetching twice every render
       async function invoke() {
