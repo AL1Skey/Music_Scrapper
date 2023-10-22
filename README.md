@@ -3,6 +3,27 @@ https://music-scrapper.vercel.app/
 
 Application that get audio from website
 
+# How to Use
+- Install the requirement
+ backend
+```batch
+pip install -r requirements.txt
+```
+ 
+ frontend
+```batch
+node install
+```
+- Run the backend and frontend
+  (backend)
+```batch
+python manage.py runserver
+```
+  (Frontend)
+```batch
+npm run dev
+```
+
 # Problem
 
 - Audio tag doesnt work because server send get image type from src attribute rather than audio file(SOLVED)
